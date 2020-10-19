@@ -9,9 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-/**
- * Please, create interface and implement it with class (@Service)
- */
+
 public class DBExample implements IDBExample {
     private List<User> createdUsers = new ArrayList<>();
     @Override
