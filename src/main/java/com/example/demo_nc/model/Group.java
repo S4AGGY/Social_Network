@@ -1,8 +1,11 @@
 package com.example.demo_nc.model;
+import javax.persistence.*;
 
-
-
+@Entity
+@Table(name = "groups")
 public class Group {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
     private String name;
     private Integer followers;
