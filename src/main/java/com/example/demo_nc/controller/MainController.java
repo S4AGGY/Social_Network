@@ -1,22 +1,37 @@
-/*package com.example.demo_nc.controller;
+package com.example.demo_nc.controller;
 
-import com.example.demo_nc.model.Group;
 import com.example.demo_nc.model.User;
+import com.example.demo_nc.service.IUserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import javax.management.remote.JMXAuthenticator;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.util.Objects;
+import java.util.Optional;
 
 @Controller
 public class MainController {
-    private List<User> users = new ArrayList<>();
-    private List<Group> groups = new ArrayList<Group>();
+    @Autowired
+    private IUserService userService;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
     @GetMapping("/hello/text")
     @ResponseBody
     public String getHelloAsString() {
-        return "hello wo";
+        return "hello";
     }
 
     @GetMapping("/hello")
@@ -27,80 +42,20 @@ public class MainController {
     @GetMapping("/create/user/{id}/{name}")
     @ResponseBody
     public String createUser(@PathVariable("id") Integer id, @PathVariable("name") String name) {
-        User user = new User();
-        user.setId(id);
-        user.setName(name);
-        users.add(user);
-        return user.toString();
+        User user = userService.createUser(id, name);
+        return Optional.ofNullable(user)
+                .map(User::getName)
+                .orElse("NULL");
     }
 
     @GetMapping("/create/user")
     @ResponseBody
     public String createUser2(@RequestParam("id") Integer id, @RequestParam("name") String name) {
-        User user = new User();
-        user.setId(id);
-        user.setName(name);
-        users.add(user);
-        return user.toString();
+        User user = userService.createUser(id, name);
+        return Optional.ofNullable(user)
+                .map(User::getName)
+                .orElse("NULL");
     }
-
-    @PostMapping("/create/user")
-    @ResponseBody
-    public String createUser(@RequestBody User user) {
-        users.add(user);
-        return user.toString();
-    }
-
-    @PostMapping("/create/group")
-    @ResponseBody
-    public String createUGroup(@RequestBody Group group) {
-        groups.add(group);
-        return group.toString();
-    }
-
-    @GetMapping("/groups")
-    @ResponseBody
-    public String getAllGroups() {
-        return groups.toString();
-    }
-
-    @GetMapping("/users")
-    @ResponseBody
-    public String getAllUsers() {
-        return users.toString();
-    }
-
-    @GetMapping("/user/count")
-    @ResponseBody
-    public String countUsers() {
-        return String.valueOf(users.size());
-    }
-
-    @GetMapping("/group/count")
-    @ResponseBody
-    public String countGroups() {
-        return String.valueOf(groups.size());
-    }*/
-package com.example.demo_nc.controller;
-
-import com.example.demo_nc.model.User;
-import com.example.demo_nc.model.Group;
-import com.example.demo_nc.service.IUserService;
-import com.example.demo_nc.service.IGroupService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
-
-@Controller
-public class MainController {
-    @Autowired
-    private IUserService userService;
-
-    @Autowired
-    private IGroupService groupService;
-
 
     @PostMapping("/create/user")
     @ResponseBody
@@ -115,23 +70,84 @@ public class MainController {
         return userService.getAllUsers().toString();
     }
 
-    @GetMapping("/count/users")
+    @GetMapping("/count")
     @ResponseBody
     public String countUsers() {
         return String.valueOf(userService.getAllUsers().size());
     }
 
-    @PostMapping("/create/group")
-    @ResponseBody
-    public String creategroup(@RequestBody Group group) {
-        groupService.save(group);
-        return group.toString();
+    @GetMapping("/about")
+    public String about() {
+        return "/about";
     }
 
-    @GetMapping("/groups")
-    @ResponseBody
-    public String getAllGroups() {
-        return groupService.getAllGroups().toString();
+    @GetMapping("/registration")
+    public String getRegistration(Model model) {
+        model.addAttribute("userForm", new User());
+        return "registration";
     }
 
+
+    @PostMapping("/registration")
+    public String addUser(@ModelAttribute("userForm") @Valid User userForm, BindingResult bindingResult, Model model) {
+        System.out.println(bindingResult.toString());
+        if (bindingResult.hasErrors()) {
+            System.out.println("return1");
+            return "registration";
+        }
+        if (!userService.saveUser(userForm)){
+            System.out.println("return2");
+            model.addAttribute("usernameError", "Пользователь с таким именем уже существует");
+            return "registration";
+        }
+
+        return "redirect:/login";
+    }
+
+    @GetMapping("/login")
+    public String getLogin(Model model, @AuthenticationPrincipal User authenticatedUser) {
+        System.out.println(model.toString());
+        if (Objects.nonNull(authenticatedUser)) {
+            return "redirect:/user";
+        }
+        model.addAttribute("userForm", new User());
+        return "login";
+    }
+
+    @PostMapping("/login")
+    public String setLogin(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("userForm") User user,
+                           BindingResult result) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UsernamePasswordAuthenticationToken authReq
+                = new UsernamePasswordAuthenticationToken(user.getName(), user.getPassword(), user.getAuthorities());
+        Authentication auth = authenticationManager.authenticate(authReq);
+        SecurityContext sc = SecurityContextHolder.getContext();
+        sc.setAuthentication(auth);
+        return "redirect:/user";
+    }
+
+    @GetMapping("/admin")
+    public String getAdmin() {
+        return "/admin";
+    }
+
+    @GetMapping("/403")
+    public String error403() {
+        return "/error";
+    }
+
+    @GetMapping("/")
+    public String home1() {
+        return "/home";
+    }
+
+    @GetMapping("/home")
+    public String home() {
+        return "/home";
+    }
+
+    @GetMapping("/user")
+    public String user() {
+        return "/user";
+    }
 }
