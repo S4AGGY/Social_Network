@@ -32,6 +32,7 @@ public class UserService implements IUserService, UserDetailsService {
         return userRepository.save(user);
     }
 
+
     @Override
     public boolean saveUser(User user) {
         User userFromDB = userRepository.findUserByName(user.getName());
