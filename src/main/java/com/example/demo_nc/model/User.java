@@ -14,8 +14,9 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
+    @Size(min=5, message = "Не меньше 5 знаков")
     private String name;
-    @Size(min=2, message = "Не меньше 5 знаков")
+    @Size(min=5, message = "Не меньше 5 знаков")
     private String password;
 
     public Set<Role> getRoles() {
