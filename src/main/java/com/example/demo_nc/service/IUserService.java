@@ -8,6 +8,7 @@ public interface IUserService {
     User getUserById(Integer id);
     User save(User user);
     boolean saveUser(User user);
+    boolean deleteUser(Integer id);
     void deleteById(Integer id);
 
     List<User> getAllUsers();
