@@ -34,10 +34,6 @@ public class MainController {
         return "hello";
     }
 
-    @GetMapping("/hello")
-    public String getHelloAsString2() {
-        return "hello";
-    }
 
     @GetMapping("/create/user/{id}/{name}")
     @ResponseBody
@@ -81,55 +77,6 @@ public class MainController {
         return "/about";
     }
 
-    @GetMapping("/registration")
-    public String getRegistration(Model model) {
-        model.addAttribute("userForm", new User());
-        return "registration";
-    }
-
-
-    @PostMapping("/registration")
-    public String addUser(@ModelAttribute("userForm") @Valid User userForm, BindingResult bindingResult, Model model) {
-        System.out.println(bindingResult.toString());
-        if (bindingResult.hasErrors()) {
-            System.out.println("return1");
-            return "registration";
-        }
-        if (!userService.saveUser(userForm)){
-            System.out.println("return2");
-            model.addAttribute("usernameError", "Пользователь с таким именем уже существует");
-            return "registration";
-        }
-
-        return "redirect:/login";
-    }
-
-    @GetMapping("/login")
-    public String getLogin(Model model, @AuthenticationPrincipal User authenticatedUser) {
-        System.out.println(model.toString());
-        if (Objects.nonNull(authenticatedUser)) {
-            return "redirect:/user";
-        }
-        model.addAttribute("userForm", new User());
-        return "login";
-    }
-
-    @PostMapping("/login")
-    public String setLogin(HttpServletRequest request, HttpServletResponse response, @ModelAttribute("userForm") User user,
-                           BindingResult result) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UsernamePasswordAuthenticationToken authReq
-                = new UsernamePasswordAuthenticationToken(user.getName(), user.getPassword(), user.getAuthorities());
-        Authentication auth = authenticationManager.authenticate(authReq);
-        SecurityContext sc = SecurityContextHolder.getContext();
-        sc.setAuthentication(auth);
-        return "redirect:/user";
-    }
-
-    @GetMapping("/admin")
-    public String getAdmin() {
-        return "/admin";
-    }
 
     @GetMapping("/403")
     public String error403() {
