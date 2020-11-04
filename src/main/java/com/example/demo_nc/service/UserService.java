@@ -47,7 +47,7 @@ public class UserService implements IUserService, UserDetailsService {
 
     @Override
     public boolean deleteUser(Integer id){
-        if (userRepository.findUserById(id).isEnabled()){
+        if (userRepository.findUserById(id).isEnabled() ){
             userRepository.deleteById(id);
             return true;
         }
