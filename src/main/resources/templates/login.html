@@ -1,17 +1,60 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html" lang="en">
 <head>
     <title> Login</title>
+    <style>
+        .wrapper {
+            width:220px;
+            border: 2px solid lightgrey;
+        }
+        .userForm{
+            border-bottom-length: 80%;
+            border-bottom: 1px solid lightgrey;
+        }
+        .fadeIn{
+            width:200px;
+            height:30px;
+            margin:5px 0;
+            margin-left: 10px;
+            border: 1px solid lightgray;
+            border-radius:5px;
+        }
+        .second, .third{
+            font-family:Verdana;
+            font-size: 19px;
+            box-shadow:0 0 0 rgba(0,0,0,0);
+        }
+
+        .fourth{
+            color: white;
+            background: royalblue;
+            font-family:Verdana;
+            font-size: 12px;
+        }
+
+        .Reg{
+            width:120px;
+            height:30px;
+            margin-left: 25px;
+            border-radius:5px;
+            padding-bottom: 10px;
+        }
+
+        .one{
+            color: white;
+            background: #52cc00;
+            font-family:Verdana;
+            font-size: 10px;
+            padding-top:7px;
+        }
+
+    </style>
 <body>
 
 
 <div class="wrapper fadeInDown">
     <div id="formContent">
 
-        <div class="fadeIn first">
-            <label id="lable">Sign In</label>
-        </div>
-
-        <form th:userDto="${userForm}" th:action="@{/login}" th:method="post">
+        <form class="userForm" th:userDto="${userForm}" th:action="@{/login}" th:method="post">
             <input type="text" id="login" class="fadeIn second" name="login" placeholder="Login" required autofocus
                    th:field="*{userForm.username}">
             <!--span class="validation_message" th:if="${name != null}">
@@ -24,8 +67,10 @@
             <input id="button-sub" type="submit" class="fadeIn fourth" value="Log In">
         </form>
 
-        <div id="formFooter">
-            <a class="underlineHover" href="registration">Not registered yet? Click here</a>
+        <div class="Reg" id="formFooter">
+            <form action="/registration">
+                <input type="submit" class="Reg one" value="Create New Account" />
+            </form>
         </div>
     </div>
 </div>
